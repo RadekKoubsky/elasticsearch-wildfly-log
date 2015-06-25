@@ -1,0 +1,89 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.elasticsearch</groupId>
+	<artifactId>elasticsearch-wildfly-log</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>Elasticsearch log handler for Wildfly.</name>
+	<description>Elasticsearch log handler for Wildfly.</description>
+  
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<version.assembly.plugin>2.5.5</version.assembly.plugin>
+		<version.compiler.plugin>3.3</version.compiler.plugin>
+		<version.checkstyle>6.7</version.checkstyle>
+        <version.checkstyle.plugin>2.15</version.checkstyle.plugin>
+        <version.dependency.plugin>2.7</version.dependency.plugin>
+        <version.org.elasticsearch>1.6.0</version.org.elasticsearch>
+		<version.release.plugin>2.5.2</version.release.plugin>
+	</properties>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${version.compiler.plugin}</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>${version.assembly.plugin}</version>
+				<configuration>
+					<descriptors>
+						<descriptor>src/main/resources/zip.xml</descriptor>
+					</descriptors>
+					<outputDirectory>target/zip</outputDirectory>
+					<workDirectory>target/work</workDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+                <!-- Checkstyle -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${version.checkstyle.plugin}</version>
+                <configuration>
+                    <configLocation>src/main/resources/checkstyle-conf.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                </configuration>
+                <dependencies>
+		            <dependency>
+		              <groupId>com.puppycrawl.tools</groupId>
+		              <artifactId>checkstyle</artifactId>
+		              <version>${version.checkstyle}</version>
+		            </dependency>
+                </dependencies>
+            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>${version.release.plugin}</version>
+			</plugin>
+			<!-- Uses maven goal 'dependency:copy-dependencies' to generate 
+				 jars (target/dependency) for org.elasticsearch module in Wildfly, 
+				 see folder 'modules' in project. -->
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${version.dependency.plugin}</version>
+            </plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+			<version>${version.org.elasticsearch}</version>
+		</dependency>
+	</dependencies>
+</project>
