@@ -19,55 +19,55 @@ public class ElasticsearchLogHandler extends Handler {
     private Integer port;
     private String index;
     private String indexType;
+    private volatile TransportClient client;
 
     public ElasticsearchLogHandler() {
         super();
     }
 
     void processRecord(final LogRecord record) {
-        synchronized(this){
-            TransportClient client = null;
+            initClient();
             try {
-                checkSettings();
-                client = new TransportClient(this.settings);
-                client.addTransportAddress(new InetSocketTransportAddress(
-                        this.transportAddress, this.port));
-                client.prepareIndex(this.index, this.indexType).setSource(serializeToJson(record)).execute();
-            }catch (final Exception e) {
+                this.client.prepareIndex(this.index, this.indexType).setSource(serializeToJson(record)).execute();
+            } catch (final IOException e) {
                 e.printStackTrace();
-            }finally{
-                if(client != null){
-                    client.close();
+            }
+    }
+
+    private void initClient() {
+        if(this.client == null){
+            synchronized (this) {
+                if(this.client == null){
+                    if(this.clusterName == null){
+                        throw new IllegalStateException("Cluster name cannot be null.");
+                    }
+
+                    if(this.transportAddress == null){
+                        throw new IllegalStateException("Transport address cannot be null.");
+                    }
+
+                    if(this.port == null){
+                        throw new IllegalStateException("Port cannot be null.");
+                    }
+
+                    if(index == null){
+                        throw new IllegalStateException("Index cannot be null.");
+                    }
+
+                    if(indexType == null){
+                        throw new IllegalStateException("Index type cannot be null.");
+                    }
+
+                    this.settings = ImmutableSettings.settingsBuilder()
+                            .put("cluster.name", this.clusterName).put("name", "Wildfly Log Node").build();
+
+                    this.client = new TransportClient(this.settings)
+                            .addTransportAddress(new InetSocketTransportAddress(
+                                    this.transportAddress, this.port));
                 }
             }
         }
-    }
 
-    private void checkSettings() {
-        if(this.settings == null){
-            if(this.clusterName == null){
-                throw new IllegalStateException("Cluster name cannot be null.");
-            }
-
-            if(this.transportAddress == null){
-                throw new IllegalStateException("Transport address cannot be null.");
-            }
-
-            if(this.port == null){
-                throw new IllegalStateException("Port cannot be null.");
-            }
-
-            if(index == null){
-                throw new IllegalStateException("Index cannot be null.");
-            }
-
-            if(indexType == null){
-                throw new IllegalStateException("Index type cannot be null.");
-            }
-
-            this.settings = ImmutableSettings.settingsBuilder()
-                    .put("cluster.name", this.clusterName).put("name", "Wildfly Log Node").build();
-        }
     }
 
     private XContentBuilder serializeToJson(final LogRecord record) throws IOException {
@@ -102,7 +102,9 @@ public class ElasticsearchLogHandler extends Handler {
 
     @Override
     public void close() throws SecurityException {
-        // TODO Auto-generated method stub
+        if(this.client != null){
+            this.client.close();
+        }
     }
 
     public String getClusterName() {
