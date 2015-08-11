@@ -10,7 +10,7 @@ For vizualization of the log events, use Kibana tool.
 
 * download Wildfly 8: http://wildfly.org/
 * download Elasticsearch 1.6.0: https://www.elastic.co/products/elasticsearch
-* dowlonad Kibana 4.1.1:https://www.elastic.co/products/kibana
+* dowlonad Kibana 4.1.1: https://www.elastic.co/products/kibana
 
 Build project with maven: `mvn clean package`
 
