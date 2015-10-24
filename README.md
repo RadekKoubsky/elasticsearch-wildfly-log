@@ -6,7 +6,7 @@ Elasticsearch log handler for Wildfly.
 Current build was tested with Wildfly 8, Elasticsearch 1.6.0 and Kibana 4.1.1.
 
 This handler sends log records from Wildfly directly to Elasticsearch cluster.
-For vizualization of the log events, use Kibana tool.
+For visualization of the log events, use Kibana tool.
 
 * download Wildfly 8: http://wildfly.org/
 * download Elasticsearch 1.6.0: https://www.elastic.co/products/elasticsearch
